@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Font-Test – encore net</title>
+  <title>encore net</title>
+  <link rel="icon" type="image/png" href="favicon.png">
 
   <!-- Fonts lokal laden -->
   <link rel="preload" href="fonts/PlusJakartaSans-Regular.woff2" as="font" type="font/woff2" crossorigin>
@@ -25,6 +26,12 @@
       font-display: swap;
     }
 
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       height: 100vh;
       display: flex;
@@ -35,24 +42,147 @@
       color: #fff;
       font-family: 'Plus Jakarta Sans', sans-serif;
       text-align: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      z-index: -1;
+    }
+
+    img {
+      max-width: 160px;
+      border-radius: 20%;
+      filter: drop-shadow(0 0 15px rgba(0,0,0,0.6));
+      transition: transform 0.3s ease, filter 0.3s ease;
+    }
+    img:hover {
+      transform: scale(1.05) rotate(-2deg);
+      filter: drop-shadow(0 0 30px rgba(255,255,255,0.4));
     }
 
     h2 {
       font-size: 2.8rem;
       font-weight: 700; /* Bold */
-      margin-bottom: 1rem;
+      margin-top: 1rem;
       color: #e0e0e0;
     }
 
     p {
       font-size: 1.2rem;
       font-weight: 400; /* Regular */
+      opacity: 0.85;
+      margin-top: 0.5rem;
       color: #cfcfcf;
+    }
+
+    .glow {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(180,180,255,0.6) 0%, rgba(0,0,0,0) 70%);
+      filter: blur(80px);
+      animation: pulseGlow 6s infinite ease-in-out;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
+      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
     }
   </style>
 </head>
 <body>
+  <canvas id="bg"></canvas>
+  <div class="glow"></div>
+
+  <img src="logo.jpg" alt="encore Logo">
   <h2>encore net</h2>
   <p>est. 2016</p>
+
+  <script>
+    const canvas = document.getElementById("bg");
+    const ctx = canvas.getContext("2d");
+    let width, height;
+    let particles = [];
+
+    function resize() {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resize);
+    resize();
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * width;
+        this.y = Math.random() * height;
+        this.vx = (Math.random() - 0.5) * 0.3;
+        this.vy = (Math.random() - 0.5) * 0.3;
+        this.radius = 1.3;
+      }
+      move() {
+        this.x += this.vx;
+        this.y += this.vy;
+        if (this.x < 0 || this.x > width) this.vx *= -1;
+        if (this.y < 0 || this.y > height) this.vy *= -1;
+      }
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(200,200,200,0.7)";
+        ctx.fill();
+      }
+    }
+
+    for (let i = 0; i < 120; i++) {
+      particles.push(new Particle());
+    }
+
+    function connect() {
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          let dx = particles[i].x - particles[j].x;
+          let dy = particles[i].y - particles[j].y;
+          let dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.strokeStyle = "rgba(200,200,200," + (1 - dist / 120) * 0.3 + ")";
+            ctx.lineWidth = 1;
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+      particles.forEach(p => {
+        p.move();
+        p.draw();
+      });
+      connect();
+
+      let vignette = ctx.createRadialGradient(
+        width / 2, height / 2, width * 0.4,
+        width / 2, height / 2, width * 0.8
+      );
+      vignette.addColorStop(0, "rgba(0,0,0,0)");
+      vignette.addColorStop(1, "rgba(0,0,0,0.6)");
+      ctx.fillStyle = vignette;
+      ctx.fillRect(0, 0, width, height);
+
+      requestAnimationFrame(animate);
+    }
+    animate();
+  </script>
 </body>
 </html>
