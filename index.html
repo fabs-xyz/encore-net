@@ -1,35 +1,28 @@
+<!DOCTYPE html>
+<html lang="de">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>encore net</title>
-  <link rel="icon" type="image/png" href="favicon.png">
+  <title>Font-Test – encore net</title>
+
+  <!-- Fonts lokal laden -->
+  <link rel="preload" href="fonts/PlusJakartaSans-Regular.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/PlusJakartaSans-Bold.woff2" as="font" type="font/woff2" crossorigin>
 
   <style>
-    /* Lokale Plus Jakarta Sans einbinden */
     @font-face {
       font-family: 'Plus Jakarta Sans';
-      src: url('/fonts/PlusJakartaSans-Regular.woff2') format('woff2');
+      font-style: normal;
       font-weight: 400;
-      font-style: normal;
+      src: url('/fonts/PlusJakartaSans-Regular.woff2') format('woff2');
+      font-display: swap;
     }
     @font-face {
       font-family: 'Plus Jakarta Sans';
-      src: url('/fonts/PlusJakartaSans-SemiBold.woff2') format('woff2');
-      font-weight: 600;
       font-style: normal;
-    }
-    @font-face {
-      font-family: 'Plus Jakarta Sans';
-      src: url('/fonts/PlusJakartaSans-Bold.woff2') format('woff2');
       font-weight: 700;
-      font-style: normal;
-    }
-
-    /* Reset & Basis-Styles */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
+      src: url('/fonts/PlusJakartaSans-Bold.woff2') format('woff2');
+      font-display: swap;
     }
 
     body {
@@ -42,57 +35,24 @@
       color: #fff;
       font-family: 'Plus Jakarta Sans', sans-serif;
       text-align: center;
-      overflow: hidden;
-      position: relative;
     }
 
-    canvas {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      z-index: -1;
-    }
-
-    img {
-      max-width: 160px;
-      border-radius: 20%;
-      filter: drop-shadow(0 0 15px rgba(0,0,0,0.6));
-      transition: transform 0.3s ease, filter 0.3s ease;
-    }
-    img:hover {
-      transform: scale(1.05) rotate(-2deg);
-      filter: drop-shadow(0 0 30px rgba(255,255,255,0.4));
-    }
-
-    h1, h2 {
-      font-weight: 700;
+    h2 {
+      font-size: 2.8rem;
+      font-weight: 700; /* Bold */
+      margin-bottom: 1rem;
       color: #e0e0e0;
     }
 
-    h1 { font-size: 2.8rem; margin-top: 1rem; }
     p {
       font-size: 1.2rem;
-      opacity: 0.85;
-      margin-top: 0.5rem;
+      font-weight: 400; /* Regular */
       color: #cfcfcf;
-    }
-
-    .glow {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 500px; height: 500px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(180,180,255,0.6) 0%, rgba(0,0,0,0) 70%);
-      filter: blur(80px);
-      animation: pulseGlow 6s infinite ease-in-out;
-      pointer-events: none;
-      z-index: -1;
-    }
-
-    @keyframes pulseGlow {
-      0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(1); }
-      50% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); }
     }
   </style>
 </head>
+<body>
+  <h2>encore net</h2>
+  <p>est. 2016</p>
+</body>
+</html>
