@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>encore net</title>
+
+  <!-- Google Font: Plus Jakarta Sans -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #111;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      overflow: hidden;
+      position: relative;
+      color: #d1d1d1;
+    }
+
+    .card {
+      background: rgba(40,40,40,0.85);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 40px 60px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      z-index: 3;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    }
+
+    .logo {
+      width: 120px;
+      margin-bottom: 20px;
+      transition: transform 0.3s ease, filter 0.3s ease;
+    }
+
+    .logo:hover {
+      transform: scale(1.05) rotate(-2deg);
+      filter: drop-shadow(0 0 15px rgba(255,255,255,0.4));
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #f0f0f0;
+    }
+
+    p {
+      font-size: 1.1rem;
+      font-weight: 400;
+      color: #cfcfcf;
+      opacity: 0.9;
+    }
+
+    .card {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 1s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    canvas {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+    }
+
+    #glowCanvas { z-index: 1; }
+    #bgCanvas { z-index: 2; }
+  </style>
+</head>
+<body>
+  <canvas id="glowCanvas"></canvas>
+  <canvas id="bgCanvas"></canvas>
+
+  <div class="card">
+    <img src="logo.jpg" alt="encore Logo" class="logo">
+    <h3>encore net</h3>
+    <p>est. 2016</p>
+  </div>
+
+  <script>
+    // === ZENTRALER GLOW ===
+    const glowCanvas = document.getElementById('glowCanvas');
+    const glowCtx = glowCanvas.getContext('2d');
+    glowCanvas.width = window.innerWidth;
+    glowCanvas.height = window.innerHeight;
+
+    function drawGlow() {
+      glowCtx.clearRect(0, 0, glowCanvas.width, glowCanvas.height);
+      const centerX = glowCanvas.width / 2;
+      const centerY = glowCanvas.height / 2;
+
+      const time = Date.now() * 0.002;
+      const radius = 180 + Math.sin(time) * 25;
+
+      const gradient = glowCtx.createRadialGradient(centerX, centerY, radius * 0.2, centerX, centerY, radius);
+      gradient.addColorStop(0, "rgba(160,160,255,0.6)");
+      gradient.addColorStop(0.5, "rgba(120,120,255,0.25)");
+      gradient.addColorStop(1, "rgba(0,0,0,0)");
+
+      glowCtx.fillStyle = gradient;
+      glowCtx.beginPath();
+      glowCtx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+      glowCtx.fill();
+
+      requestAnimationFrame(drawGlow);
+    }
+    drawGlow();
+
+    // === MESH PARTIKEL ===
+    const canvas = document.getElementById('bgCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = [];
+    const particleCount = 120;
+    const maxDistance = 180;
+
+    for (let i = 0; i < particleCount; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 2.2 + 1,
+        dx: (Math.random() - 0.5) * 0.6,
+        dy: (Math.random() - 0.5) * 0.6
+      });
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      particles.forEach(p => {
+        p.x += p.dx;
+        p.y += p.dy;
+
+        if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+        ctx.fillStyle = "rgba(200,200,255,0.55)";
+        ctx.shadowBlur = 12;
+        ctx.shadowColor = "rgba(170,170,255,0.5)";
+        ctx.fill();
+      });
+
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const dist = Math.sqrt(dx*dx + dy*dy);
+
+          if (dist < maxDistance) {
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(160,160,255,${0.25 - dist/maxDistance * 0.25})`;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      glowCanvas.width = canvas.width = window.innerWidth;
+      glowCanvas.height = canvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>
